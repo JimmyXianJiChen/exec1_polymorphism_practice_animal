@@ -1,177 +1,185 @@
 import java.util.Scanner;
 
 public class Main {
-    public static boolean isAvailableWeight(String str){
-        try{
-            Float.parseFloat(str);
-            return true;
-        }
-        catch(Exception e){
-            System.out.println("Invalid weight!");
-            System.out.println("Please try again!");
-            return false;
-        }
+    public static boolean invalidWeight(float weight){
+        return (weight<=0);
     }
-    public static boolean isAvailableIndex(String str, int num){
-        try{
-            Integer.parseInt(str);
-        }
-        catch(Exception e){
-            System.out.println("Invalid index!");
-            System.out.println("Please try again!");
-            return false;
-        }
-        if(Integer.parseInt(str) < 0 || Integer.parseInt(str)>num){
-            System.out.println("Index out of range!");
-            System.out.println("Please try again!");
-            return false;
-        }
-        return true;
-    }
-    public static boolean genreOrNameIsBlank(String genre, String name){
-        if(genre.isBlank()||name.isBlank()||genre.isEmpty()||name.isEmpty()){
-            System.out.println("The genre and name of the animal can't be blank!!");
-            System.out.println("Please try again!");
-            return true;
+    public static boolean invalidIndex(int idx, int num, boolean forDel){
+        //check index for delete() and insert(), insert allows idx==num cause it equals to adding in the end of array;
+        if(forDel) {
+            return(idx<0 || idx>=num);
         }
         else {
-            return false;
+            return (idx<0 || idx>num);
         }
+    }
+    public static boolean invalidName(String name){
+        return (name.isBlank()||name.isEmpty());
+    }
+    public static boolean invalidMinMaxWeight(float min_weight, float max_weight){
+        return (min_weight>max_weight || invalidWeight(min_weight) || invalidWeight(max_weight));
     }
     public static void main(String[] args) {
         Scanner sc = new Scanner(System.in);
-        String cmd;
-        String[] arg;
+        int cmd,type,idx;
+        float min_weight,max_weight;
+        String name;
+        float weight;
         AnimalArray arr = new AnimalArray();
         System.out.println(
-        """
-        >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-        command instructions:
-        -----------------------------------------------------
-        add: add an animal to the list at the end of the list
-        insert: insert an animal to the specified index in the list
-        delete: delete the animal at the specified index in the list
-        sort: sort the animals in the array by their weights/names
-        show: show all the animals in the list by their current order
-        exist: quit the application
-        >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
-        """
+                """
+                >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                command instructions:
+                -----------------------------------------------------
+                add: add an animal to the list at the end of the list
+                insert: insert an animal to the specified index in the list
+                delete: delete the animal at the specified index in the list
+                sort: sort the animals in the array by their weights/names
+                show: show all the animals in the list by their current order
+                exist: quit the application
+                >>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>>
+                """
         );
         boolean go = true;
         while(go){
-            System.out.println("Which action do you want to take? (add/insert/delete/sort/show/exit)");
-            cmd = sc.nextLine();
+            System.out.println("Which action do you want to take? (1.add/2.insert/3.delete/4.sort/5.search/6.show/7.exit)");
+            cmd = sc.nextInt();
+            sc.nextLine();
             switch (cmd){
-                case "add":
-                    System.out.println("Please enter the genre, name, and weight of the animal in order:");
-                    cmd = sc.nextLine();
-                    arg = cmd.split(" ");
-                    if(arg.length!=3){
-                        System.out.println("The number of parameters is not correct!");
-                        System.out.println("Please try again!");
+                case 1: //add
+                case 2:{//insert
+                    System.out.println("Which genre do you want to add/insert? (1.dog/2.cat/3.mouse)");
+                    type = sc.nextInt();
+                    sc.nextLine();
+                    if(type>3||type<=0){
+                        System.out.println("Invalid animal genre! Please try again!");
                         break;
                     }
-                    else if(!isAvailableWeight(arg[2])||genreOrNameIsBlank(arg[0],arg[1])){
+                    System.out.println("Please enter the name of the animal:");
+                    name = sc.nextLine();
+                    if(invalidName(name)) {
+                        System.out.println("Invalid animal name! Please try again!");
                         break;
                     }
-                    switch (arg[0]){
-                        case("dog"):{
-                            arr.addAnimal(new Dog(arg[1],  Float.parseFloat(arg[2])));
-                            break;
-                        }
-                        case("cat"):{
-                            arr.addAnimal(new Cat(arg[1],  Float.parseFloat(arg[2])));
-                            break;
-                        }
-                        case("mouse"):{
-                            arr.addAnimal(new Mouse(arg[1],  Float.parseFloat(arg[2])));
-                            break;
-                        }
-                        default:{
-                            System.out.println("Animal Type doesn't exist, please try other species.");
-                            break;
-                        }
-                    }
-                    break;
-                case "insert":{
-                    System.out.println("Please enter the index, genre, name, and weight of the animal in order:");
-                    cmd = sc.nextLine();
-                    arg = cmd.split(" ");
-
-                    if(arg.length!=4){
-                        System.out.println("The number of parameters is not correct!");
-                        System.out.println("Please try again!");
+                    System.out.println("Please enter the weight of the animal:");
+                    weight = sc.nextFloat();
+                    if(invalidWeight(weight)){
+                        System.out.println("Invalid animal weight! Please try again!");
                         break;
                     }
-                    else if(!isAvailableIndex(arg[0], arr.getAnimalNum())||genreOrNameIsBlank(arg[1],arg[2])||!isAvailableWeight(arg[3])){
-                        break;
+                    if(cmd==1) {
+                        idx = arr.getAnimalNum();
+                    }
+                    else{
+                        System.out.println("Please enter the index that you would like to insert the animal:");
+                        idx = sc.nextInt();
+                        sc.nextLine();
+                        if(invalidIndex(idx,arr.getAnimalNum(),false)){
+                            System.out.println("Invalid inserting index! Please try again!");
+                            break;
+                        }
                     }
 
-                    switch (arg[1]){
-                        case("dog"):{
-                            arr.addAnimalAt(Integer.parseInt(arg[0]),new Dog(arg[2],  Float.parseFloat(arg[3])));
+                    switch (type) {
+                        case 1:{//("dog"): {
+                            arr.addAnimalAt(idx, new Dog(name, weight));
                             break;
                         }
-                        case("cat"):{
-                            arr.addAnimalAt(Integer.parseInt(arg[0]),new Cat(arg[2],  Float.parseFloat(arg[3])));
+                        case 2:{//("cat"): {
+                            arr.addAnimalAt(idx, new Cat(name, weight));
                             break;
                         }
-                        case("mouse"):{
-                            arr.addAnimalAt(Integer.parseInt(arg[0]),new Mouse(arg[2],  Float.parseFloat(arg[3])));
+                        case 3:{//("mouse"): {
+                            arr.addAnimalAt(idx, new Mouse(name, weight));
                             break;
                         }
-                        default:{
-                            System.out.println("Animal Type doesn't exist, please try other species.");
+                        default: {
+                            System.out.println("Animal type doesn't exist, please try other species.");
                             break;
                         }
                     }
                     break;
                 }
-                case "delete":{
+                case 3:{//"delete": {
                     System.out.println("Which animal do you want to delete? (Please enter the index)");
-                    cmd = sc.nextLine();
-                    if(!isAvailableIndex(cmd, arr.getAnimalNum())) {
+                    idx = sc.nextInt();
+                    sc.nextLine();
+                    if (invalidIndex(idx, arr.getAnimalNum(), true)) {
                         break;
                     }
-                    arr.delete(Integer.parseInt(cmd));
+                    arr.delete(idx);
                     break;
                 }
-                case "sort":{
-                    System.out.println("Which sorting method do you want to use? (byWeight/byName)");
-                    cmd = sc.nextLine();
+                case 4:{//"sort":{
+                    System.out.println("Which sorting method do you want to use? (1.byWeight/2.byName)");
+                    cmd = sc.nextInt();
+                    sc.nextLine();
                     switch (cmd){
-                        case "byWeight":{
+                        case 1: {//"byWeight":
                             arr.sortByWeight();
                             break;
                         }
-                        case "byName":{
+                        case 2: {//"byName":
                             arr.sortByName();
                             break;
                         }
-                        default:{
-                            System.out.println("Sorting method: " + cmd + " does not exist!");
-                            System.out.println("Please try again!");
+                        default: {
+                            System.out.println("Sorting method does not exist! Please try again!");
                             break;
                         }
                     }
                     break;
                 }
-                case "show":{
+                case 5:{//"search": {
+                    System.out.println("Which search method do you want to use? (1.byName/2.byFirstChar)");
+                    cmd = sc.nextInt();
+                    sc.nextLine();
+                    switch (cmd) {
+                        case 1:{//"byName": {
+                            System.out.println("Please enter the name you would like to search for:");
+                            name = sc.nextLine();
+                            if (name.length() == 0) {
+                                System.out.println("Name can't be blank!");
+                                System.out.println("Please try again!");
+                                break;
+                            }
+                            arr.searchByName(name);
+                            break;
+                        }
+                        case 2:{//"byFirstChar": {
+                            System.out.println("Please enter the first character you would like to search for:");
+                            name = sc.nextLine();
+                            if (name.length() == 0) {
+                                System.out.println("First character can't be blank!!");
+                                break;
+                            } else if (name.length() > 1) {
+                                System.out.println("Please enter only one character at a time!");
+                                break;
+                            }
+                            arr.searchByFirstChar(name.charAt(0));
+                            break;
+                        }
+                        default: {
+                            break;
+                        }
+                    }
+                    break;
+                }
+                case 6:{//"show": {
                     arr.printAllAnimals();
                     break;
                 }
-                case "exit":{
+                case 7:{//"exit": {
                     go = false;
                     break;
                 }
                 default:{
-                    System.out.println("Action" + cmd + " not found, please enter an available command!");
+                    System.out.println("Action not found, please enter an available command!");
                     break;
                 }
             }
             System.out.println("============================================");
         }
-        System.out.println("============================================");
         System.out.println("Program exited!");
         System.out.println("============================================");
     }
